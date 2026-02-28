@@ -440,7 +440,7 @@ def build_pdf_from_payload(payload: dict) -> str:
         r, g, b = NAME_RGB
         c.setFillColorRGB(r/255, g/255, b/255)
 
-        x, y = 1000, 100
+        x, y = 900, 100
 
         c.drawRightString(x, y, reader_display)
         c.drawRightString(x+0.6, y, reader_display)
@@ -774,6 +774,7 @@ def build_pdf_from_payload(payload: dict) -> str:
         writer.write(f)
 
     return out_pdf_path
+
 
 
 
