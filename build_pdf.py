@@ -445,7 +445,7 @@ def build_pdf_from_payload(payload: dict) -> str:
         c.drawRightString(x, y, reader_display)
         c.drawRightString(x+0.6, y, reader_display)
         c.drawRightString(x+1.2, y, reader_display)
-        c.drawRightStringg(x+1.8, y, reader_display)
+        c.drawRightString(x+1.8, y, reader_display)
 
     make_overlay_for_base(cover_base, cover_overlay, draw_cover)
     merge_base_and_overlay(cover_base, cover_overlay, cover_done)
@@ -774,6 +774,7 @@ def build_pdf_from_payload(payload: dict) -> str:
         writer.write(f)
 
     return out_pdf_path
+
 
 
 
