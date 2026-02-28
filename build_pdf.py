@@ -441,6 +441,12 @@ def build_pdf_from_payload(payload: dict) -> str:
         c.setFillColorRGB(r/255, g/255, b/255)
 
         x, y = 400, 100
+
+        x_right_limit = 1100  # ここから右に出したくない（右端）
+        text_w = stringWidth(reader_display, font, fs)
+
+        x = min(x_base, x_right_limit - text_w)  # 長いと左へずれる
+        
         c.drawString(x, y, reader_display)
         c.drawString(x+0.6, y, reader_display)
         c.drawString(x+1.2, y, reader_display)
@@ -773,4 +779,5 @@ def build_pdf_from_payload(payload: dict) -> str:
         writer.write(f)
 
     return out_pdf_path
+
 
