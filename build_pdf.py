@@ -440,17 +440,12 @@ def build_pdf_from_payload(payload: dict) -> str:
         r, g, b = NAME_RGB
         c.setFillColorRGB(r/255, g/255, b/255)
 
-        x, y = 400, 100
+        x, y = 1000, 100
 
-        x_right_limit = 1100  # ここから右に出したくない（右端）
-        text_w = stringWidth(reader_display, font, fs)
-
-        x = min(x_base, x_right_limit - text_w)  # 長いと左へずれる
-        
-        c.drawString(x, y, reader_display)
-        c.drawString(x+0.6, y, reader_display)
-        c.drawString(x+1.2, y, reader_display)
-        c.drawString(x+1.8, y, reader_display)
+        c.drawRightString(x, y, reader_display)
+        c.drawRightString(x+0.6, y, reader_display)
+        c.drawRightString(x+1.2, y, reader_display)
+        c.drawRightStringg(x+1.8, y, reader_display)
 
     make_overlay_for_base(cover_base, cover_overlay, draw_cover)
     merge_base_and_overlay(cover_base, cover_overlay, cover_done)
@@ -779,5 +774,6 @@ def build_pdf_from_payload(payload: dict) -> str:
         writer.write(f)
 
     return out_pdf_path
+
 
 
