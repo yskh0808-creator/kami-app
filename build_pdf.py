@@ -394,7 +394,16 @@ def main(input_json_path: str):
 def build_pdf_from_payload(payload: dict) -> str:
     ensure_dir(OUTPUTS_DIR)
 
-    reader_name = payload["reader_name"]
+    reader_name = (payload.get("reader_name") or "").strip()
+
+    # 先頭に「鑑定士」が入ってても二重にならない対策（任意だけどおすすめ）
+    if reader_name.startswith("鑑定士"):
+        reader_name = reader_name.replace("鑑定士", "", 1).strip()
+
+    reader_display = f"鑑定士 {reader_name}" if reader_name else ""
+
+
+    
     client_name = payload["client_name"]
     birthday    = payload["birthday"]  # YYYY-MM-DD
     tenmei      = int(payload["tenmei"])
@@ -431,11 +440,11 @@ def build_pdf_from_payload(payload: dict) -> str:
         r, g, b = NAME_RGB
         c.setFillColorRGB(r/255, g/255, b/255)
 
-        x, y = 680, 100
-        c.drawString(x, y, reader_name)
-        c.drawString(x+0.6, y, reader_name)
-        c.drawString(x+1.2, y, reader_name)
-        c.drawString(x+1.8, y, reader_name)
+        x, y = 400, 100
+        c.drawString(x, y, reader_display)
+        c.drawString(x+0.6, y, reader_display)
+        c.drawString(x+1.2, y, reader_display)
+        c.drawString(x+1.8, y, reader_display)
 
     make_overlay_for_base(cover_base, cover_overlay, draw_cover)
     merge_base_and_overlay(cover_base, cover_overlay, cover_done)
@@ -764,3 +773,4 @@ def build_pdf_from_payload(payload: dict) -> str:
         writer.write(f)
 
     return out_pdf_path
+
