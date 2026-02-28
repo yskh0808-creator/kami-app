@@ -113,11 +113,12 @@ selected = {}
 
 with cols[0]:
     selected["tenmei"] = st.selectbox("天命", options=labels, index=0)
-    selected["shimei"] = st.selectbox("使命", options=labels, index=0)
+    selected["syukumei"] = st.selectbox("宿命", options=labels, index=0)
 
 with cols[1]:
-    selected["syukumei"] = st.selectbox("宿命", options=labels, index=0)
+    selected["shimei"] = st.selectbox("使命", options=labels, index=0)
     selected["unmei"] = st.selectbox("運命", options=labels, index=0)
+
 
 selected_no = {role: int(label_to_no[selected[role]]) for role in ROLE_ORDER}
 
@@ -184,4 +185,5 @@ if st.button("鑑定書PDF生成", type="primary", disabled=bool(err)):
         data=pdf_bytes,
         file_name=os.path.basename(out_pdf_path),
         mime="application/pdf",
+
     )
