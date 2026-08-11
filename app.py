@@ -25,11 +25,8 @@ def sanitize_filename_component(text: str) -> str:
     return text
 
 def make_base_filename(client_name: str, created: date) -> str:
-    yy = f"{created.year % 100:02d}"
-    mm = f"{created.month:02d}"
-    dd = f"{created.day:02d}"
     safe_name = sanitize_filename_component(client_name) or "noname"
-    return f"鑑定書_{safe_name}_{yy}{mm}{dd}.pdf"
+    return f"{safe_name}様 あなたの神様鑑定書.pdf"
 
 def uniquify_path(directory: str, filename: str) -> str:
     base, ext = os.path.splitext(filename)
@@ -113,6 +110,10 @@ include_course = st.checkbox("講座案内・プレゼントページを付け�
 st.subheader("出力")
 created = date.today()
 
+ensure_dir(DEFAULT_OUTPUT_DIR)
+base_filename = make_base_filename(client_name or "noname", created)
+final_path = uniquify_path(DEFAULT_OUTPUT_DIR, base_filename)
+
 def validate():
     if not reader_name.strip():
         return "鑑定士名が未入力です。"
@@ -138,6 +139,7 @@ if st.button("鑑定書PDF生成", type="primary", disabled=bool(err)):
         "include_bonus": bool(include_bonus),
         "include_course": bool(include_course),
         "created": created.isoformat(),
+        "output_pdf_path": final_path,
     }
     with st.spinner("PDFを生成しています..."):
         try:
@@ -146,7 +148,7 @@ if st.button("鑑定書PDF生成", type="primary", disabled=bool(err)):
             st.error(f"PDF生成に失敗しました: {e}")
             st.stop()
 
-    st.success(f"PDFを生成しました: {out_pdf_path}")
+    st.success(f"PDFを生成しました：{os.path.basename(out_pdf_path)}")
 
     with open(out_pdf_path, "rb") as f:
         pdf_bytes = f.read()
