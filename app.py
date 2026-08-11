@@ -68,24 +68,8 @@ st.title(APP_TITLE)
     #output_dir = st.text_input("出力フォルダ", value=DEFAULT_OUTPUT_DIR)
     #st.caption("※ CSVと出力フォルダはローカルパス指定です。")
 
-with st.sidebar:
-    st.header("設定")
-    demo_mode = st.toggle("デモモード（先生用）", value=True)
-
-    if demo_mode:
-        # 先生に見せる用：固定（迷わない＆Cloudでも確実）
-        csv_path = DEFAULT_CSV_PATH
-        output_dir = DEFAULT_OUTPUT_DIR
-        st.caption(f"CSV: {csv_path}")
-        st.caption(f"出力先: {output_dir}")
-    else:
-        # あなたの運用用：自由に変更できる（ローカル向け）
-        csv_path = st.text_input("12柱CSVパス", value=DEFAULT_CSV_PATH)
-        output_dir = st.text_input("出力フォルダ", value=DEFAULT_OUTPUT_DIR)
-        st.caption("※ Cloudでは基本この項目は触らないでOK（デモモード推奨）")
-
 try:
-    gods_df = load_gods_csv(csv_path)
+    gods_df = load_gods_csv(DEFAULT_CSV_PATH)
 except Exception as e:
     st.error(f"CSVの読み込みに失敗しました: {e}")
     st.stop()
@@ -129,16 +113,6 @@ include_course = st.checkbox("講座案内・プレゼントページを付け�
 st.subheader("出力")
 created = date.today()
 
-if demo_mode:
-    st.caption("デモモード：保存先は自動生成（UUID）です。")
-else:
-    base_filename = make_base_filename(client_name or "noname", created)
-    filename = st.text_input("保存ファイル名（初期値は作成日ベース）", value=base_filename)
-
-    ensure_dir(output_dir)
-    final_path = uniquify_path(output_dir, filename)
-    st.caption(f"保存先（同名があれば自動で(1)…付与）: {final_path}")
-
 def validate():
     if not reader_name.strip():
         return "鑑定士名が未入力です。"
@@ -165,9 +139,6 @@ if st.button("鑑定書PDF生成", type="primary", disabled=bool(err)):
         "include_course": bool(include_course),
         "created": created.isoformat(),
     }
-    if not demo_mode:
-        payload["output_pdf_path"] = final_path
-
     with st.spinner("PDFを生成しています..."):
         try:
             out_pdf_path = build_pdf_from_payload(payload)
@@ -185,5 +156,4 @@ if st.button("鑑定書PDF生成", type="primary", disabled=bool(err)):
         data=pdf_bytes,
         file_name=os.path.basename(out_pdf_path),
         mime="application/pdf",
-
     )
