@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from io import BytesIO
 from datetime import datetime
 from pypdf import PdfWriter, PdfReader
 from reportlab.pdfgen import canvas
@@ -412,6 +413,7 @@ def build_pdf_from_payload(payload: dict) -> str:
     unmei       = int(payload["unmei"])
     include_bonus  = bool(payload.get("include_bonus", True))
     include_course = bool(payload.get("include_course", False))
+    sample_mode    = bool(payload.get("sample_mode", False))
 
     uniq = unique_gods_in_order(tenmei, syukumei, shimei, unmei)
 
@@ -767,6 +769,30 @@ def build_pdf_from_payload(payload: dict) -> str:
     for p in parts:
         reader = PdfReader(p)
         for page in reader.pages:
+            if sample_mode:
+                page_w = float(page.mediabox.width)
+                page_h = float(page.mediabox.height)
+
+                watermark_buffer = BytesIO()
+                wm = canvas.Canvas(watermark_buffer, pagesize=(page_w, page_h))
+                wm.saveState()
+                try:
+                    wm.setFillAlpha(0.16)
+                except Exception:
+                    pass
+                wm.setFillColorRGB(0.55, 0.55, 0.55)
+                wm.setFont("Helvetica-Bold", 72)
+                wm.translate(page_w / 2, page_h / 2)
+                wm.rotate(35)
+                wm.drawCentredString(0, 0, "SAMPLE")
+                wm.restoreState()
+                wm.showPage()
+                wm.save()
+
+                watermark_buffer.seek(0)
+                watermark_page = PdfReader(watermark_buffer).pages[0]
+                page.merge_page(watermark_page)
+
             writer.add_page(page)
 
     ensure_dir(os.path.dirname(out_pdf_path) or ".")
