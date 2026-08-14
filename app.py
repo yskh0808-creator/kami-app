@@ -2,6 +2,7 @@ import os
 import re
 import json
 import hmac
+import calendar
 import hashlib
 from datetime import date
 import pandas as pd
@@ -161,14 +162,58 @@ reader_name = st.text_input("鑑定士名", value="")
 client_name = st.text_input("クライアント名", value="")
 from datetime import date
 
-birthday = st.date_input(
-    "クライアントの誕生日",
-    min_value=date(1925, 1, 1),
-    max_value=date.today(),
-    format="YYYY/MM/DD"
-)
+st.write("クライアントの誕生日")
 
-st.caption("鑑定書内の表示は yyyy年mm月dd日 に整形します（内部は日付として保持）。")
+birth_cols = st.columns(3)
+
+current_year = date.today().year
+year_options = [None] + list(range(current_year, 1924, -1))
+month_options = [None] + list(range(1, 13))
+
+with birth_cols[0]:
+    birth_year = st.selectbox(
+        "年",
+        options=year_options,
+        index=0,
+        format_func=lambda x: "年を選択" if x is None else f"{x}年",
+        key="birth_year",
+        label_visibility="collapsed",
+    )
+
+with birth_cols[1]:
+    birth_month = st.selectbox(
+        "月",
+        options=month_options,
+        index=0,
+        format_func=lambda x: "月を選択" if x is None else f"{x}月",
+        key="birth_month",
+        label_visibility="collapsed",
+    )
+
+if birth_year is not None and birth_month is not None:
+    max_day = calendar.monthrange(birth_year, birth_month)[1]
+    day_options = [None] + list(range(1, max_day + 1))
+    day_disabled = False
+else:
+    day_options = [None]
+    day_disabled = True
+
+with birth_cols[2]:
+    birth_day = st.selectbox(
+        "日",
+        options=day_options,
+        index=0,
+        format_func=lambda x: "日を選択" if x is None else f"{x}日",
+        key="birth_day",
+        disabled=day_disabled,
+        label_visibility="collapsed",
+    )
+
+birthday = None
+if birth_year is not None and birth_month is not None and birth_day is not None:
+    birthday = date(birth_year, birth_month, birth_day)
+
+st.caption("年・月・日をそれぞれ選択してください。")
 
 st.subheader("4柱の神様（12柱から選択）")
 cols = st.columns(2)
